@@ -6,6 +6,6 @@ services:
     environment:
       NODE_ENV: development
     volumes:
-      - ./app:/usr/src/app
+      - ./approot:/usr/src/app
     ports:
       - "8080:8080"
