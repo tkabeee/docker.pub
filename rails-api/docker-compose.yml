@@ -1,0 +1,47 @@
+version: '3.9'
+services:
+  api:
+    platform: linux/arm64/v8
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    container_name: rails_api
+    command: bash -c "rm -f tmp/pids/server.pid && bundle exec rails s -p 3000 -b '0.0.0.0'"
+    env_file: ./api/.env
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mysql_db
+    volumes:
+      - .:/app:cached
+      - /app/.git
+      - bundle_api:/usr/local/bundle
+    networks:
+      - backend
+    tty: true
+    stdin_open: true
+    privileged: true
+    dns:
+      - 8.8.8.8
+
+  mysql_db:
+    platform: linux/arm64/v8
+    build: ./mysql_db
+    container_name: rails_db
+    env_file: ./mysql_db/.env.dev
+    ports:
+      - "33306:3306"
+    volumes:
+      - mysql_db:/var/lib/mysql:cached
+      - ./mysql_db/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - backend
+
+volumes:
+  bundle_api:
+    driver: local
+  mysql_db:
+    driver: local
+
+networks:
+  backend:
